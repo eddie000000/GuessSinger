@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>猜歌手遊戲</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const SINGERS = [
+            // 原有的歌手資料...
+            { name: '鄧麗君', pinyin: ['ㄉ', 'ㄌ', 'ㄐ'] },
+    { name: '張惠妹', pinyin: ['ㄓ', 'ㄏ', 'ㄇ'] },
+    { name: '鄧紫棋', pinyin: ['ㄉ', 'ㄗ', 'ㄑ'] },
+    { name: '梁靜茹', pinyin: ['ㄌ', 'ㄐ', 'ㄖ'] },
+    { name: '小阿七', pinyin: ['ㄒ', 'ㄚ', 'ㄑ'] },
+    { name: '鳳飛飛', pinyin: ['ㄈ', 'ㄈ', 'ㄈ'] },
+    { name: '林憶蓮', pinyin: ['ㄌ', 'ㄧ', 'ㄌ'] },
+    { name: '蔡依林', pinyin: ['ㄘ', 'ㄧ', 'ㄌ'] },
+    { name: '鄭秀文', pinyin: ['ㄓ', 'ㄒ', 'ㄨ'] },
+    { name: '容祖兒', pinyin: ['ㄖ', 'ㄗ', 'ㄦ'] },
+    { name: '蔡健雅', pinyin: ['ㄘ', 'ㄐ', 'ㄧ'] },
+    { name: '莫文蔚', pinyin: ['ㄇ', 'ㄨ', 'ㄨ'] },
+    { name: '孫燕姿', pinyin: ['ㄙ', 'ㄧ', 'ㄗ'] },
+    { name: '梅艷芳', pinyin: ['ㄇ', 'ㄧ', 'ㄈ'] },
+    { name: '徐佳瑩', pinyin: ['ㄒ', 'ㄐ', 'ㄧ'] },
+    { name: '楊丞琳', pinyin: ['ㄧ', 'ㄔ', 'ㄌ'] },
+    { name: '陳美齡', pinyin: ['ㄔ', 'ㄇ', 'ㄌ'] },
+    { name: '郁可唯', pinyin: ['ㄩ', 'ㄎ', 'ㄨ'] },
+    { name: '陳慧嫻', pinyin: ['ㄔ', 'ㄏ', 'ㄒ'] },
+    { name: '黃乙玲', pinyin: ['ㄏ', 'ㄧ', 'ㄌ'] },
+    { name: '黃麗玲', pinyin: ['ㄏ', 'ㄌ', 'ㄌ'] },
+    { name: '田馥甄', pinyin: ['ㄊ', 'ㄈ', 'ㄓ'] },
+    { name: '陳慧琳', pinyin: ['ㄔ', 'ㄏ', 'ㄌ'] },
+    { name: '張韶涵', pinyin: ['ㄓ', 'ㄕ', 'ㄏ'] },
+    { name: '徐小鳳', pinyin: ['ㄒ', 'ㄒ', 'ㄈ'] },
+    { name: '劉若英', pinyin: ['ㄌ', 'ㄖ', 'ㄧ'] },
+    { name: '楊千嬅', pinyin: ['ㄧ', 'ㄑ', 'ㄏ'] },
+    { name: '葉蒨文', pinyin: ['ㄧ', 'ㄊ', 'ㄨ'] },
+    { name: '梁詠琪', pinyin: ['ㄌ', 'ㄩ', 'ㄑ'] },
+    { name: '莊心妍', pinyin: ['ㄓ', 'ㄒ', 'ㄧ'] },
+    { name: '張碧晨', pinyin: ['ㄓ', 'ㄅ', 'ㄔ'] },
+    { name: '王心凌', pinyin: ['ㄨ', 'ㄒ', 'ㄌ'] },
+    { name: '李翊君', pinyin: ['ㄌ', 'ㄧ', 'ㄐ'] },
+    { name: '姚蘇蓉', pinyin: ['ㄧ', 'ㄙ', 'ㄖ'] },
+    { name: '許茹芸', pinyin: ['ㄒ', 'ㄖ', 'ㄩ'] },
+    { name: '陳淑樺', pinyin: ['ㄔ', 'ㄕ', 'ㄏ'] },
+    { name: '蕭亞軒', pinyin: ['ㄒ', 'ㄧ', 'ㄒ'] },
+    { name: '范瑋琪', pinyin: ['ㄈ', 'ㄨ', 'ㄑ'] },
+    { name: '龍千玉', pinyin: ['ㄌ', 'ㄑ', 'ㄩ'] },
+    { name: '黃鶯鶯', pinyin: ['ㄏ', 'ㄧ', 'ㄧ'] },
+    { name: '岑寧兒', pinyin: ['ㄘ', 'ㄋ', 'ㄦ'] },
+    { name: '張靚穎', pinyin: ['ㄓ', 'ㄐ', 'ㄧ'] },
+    { name: '詹雅雯', pinyin: ['ㄓ', 'ㄧ', 'ㄨ'] },
+    { name: '蔡幸娟', pinyin: ['ㄘ', 'ㄒ', 'ㄐ'] },
+    { name: '陳綺貞', pinyin: ['ㄔ', 'ㄑ', 'ㄓ'] },
+    { name: '潘越雲', pinyin: ['ㄆ', 'ㄩ', 'ㄩ'] },
+    { name: '尹昔眠', pinyin: ['ㄧ', 'ㄒ', 'ㄇ'] },
+    { name: '謝安琪', pinyin: ['ㄒ', 'ㄢ', 'ㄑ'] },
+    { name: '魏如萱', pinyin: ['ㄨ', 'ㄖ', 'ㄒ'] },
+    { name: '何韻詩', pinyin: ['ㄏ', 'ㄩ', 'ㄕ'] },
+    { name: '陳雪凝', pinyin: ['ㄔ', 'ㄒ', 'ㄋ'] },
+    { name: '陳潔儀', pinyin: ['ㄔ', 'ㄐ', 'ㄧ'] },
+    { name: '范曉萱', pinyin: ['ㄈ', 'ㄒ', 'ㄒ'] },
+    { name: '馮提莫', pinyin: ['ㄈ', 'ㄊ', 'ㄇ'] },
+    { name: '戴佩妮', pinyin: ['ㄉ', 'ㄆ', 'ㄋ'] },
+    { name: '李千那', pinyin: ['ㄌ', 'ㄑ', 'ㄋ'] },
+    { name: '彭佳慧', pinyin: ['ㄆ', 'ㄐ', 'ㄏ'] },
+    { name: '辛曉琪', pinyin: ['ㄒ', 'ㄒ', 'ㄑ'] },
+    { name: '黃小琥', pinyin: ['ㄏ', 'ㄒ', 'ㄏ'] },
+    { name: '周杰倫', pinyin: ['ㄓ', 'ㄐ', 'ㄌ'] },
+    { name: '陳奕迅', pinyin: ['ㄔ', 'ㄧ', 'ㄒ'] },
+    { name: '林俊傑', pinyin: ['ㄌ', 'ㄐ', 'ㄐ'] },
+    { name: '周興哲', pinyin: ['ㄓ', 'ㄒ', 'ㄓ'] },
+    { name: '張學友', pinyin: ['ㄓ', 'ㄒ', 'ㄧ'] },
+    { name: '薛之謙', pinyin: ['ㄒ', 'ㄓ', 'ㄑ'] },
+    { name: '李榮浩', pinyin: ['ㄌ', 'ㄖ', 'ㄏ'] },
+    { name: '劉德華', pinyin: ['ㄌ', 'ㄉ', 'ㄏ'] },
+    { name: '張國榮', pinyin: ['ㄓ', 'ㄍ', 'ㄖ'] },
+    { name: '韋禮安', pinyin: ['ㄨ', 'ㄌ', 'ㄢ'] },
+    { name: '譚詠麟', pinyin: ['ㄊ', 'ㄩ', 'ㄌ'] },
+    { name: '周華健', pinyin: ['ㄓ', 'ㄏ', 'ㄐ'] },
+    { name: '盧廣仲', pinyin: ['ㄌ', 'ㄍ', 'ㄓ'] },
+    { name: '王力宏', pinyin: ['ㄨ', 'ㄌ', 'ㄏ'] },
+    { name: '林子祥', pinyin: ['ㄌ', 'ㄗ', 'ㄒ'] },
+    { name: '張信哲', pinyin: ['ㄓ', 'ㄒ', 'ㄓ'] },
+    { name: '李克勤', pinyin: ['ㄌ', 'ㄎ', 'ㄑ'] },
+    { name: '汪蘇瀧', pinyin: ['ㄨ', 'ㄙ', 'ㄌ'] },
+    { name: '古巨基', pinyin: ['ㄍ', 'ㄐ', 'ㄐ'] },
+    { name: '郭富城', pinyin: ['ㄍ', 'ㄈ', 'ㄔ'] },
+    { name: '費玉清', pinyin: ['ㄈ', 'ㄩ', 'ㄑ'] },
+    { name: '陳百強', pinyin: ['ㄔ', 'ㄅ', 'ㄑ'] },
+    { name: '張敬軒', pinyin: ['ㄓ', 'ㄐ', 'ㄒ'] },
+    { name: '許志安', pinyin: ['ㄒ', 'ㄓ', 'ㄢ'] },
+    { name: '黃明志', pinyin: ['ㄏ', 'ㄇ', 'ㄓ'] },
+    { name: '許冠傑', pinyin: ['ㄒ', 'ㄍ', 'ㄐ'] },
+    { name: '張震嶽', pinyin: ['ㄓ', 'ㄓ', 'ㄩ'] },
+    { name: '楊宗緯', pinyin: ['ㄧ', 'ㄗ', 'ㄨ'] },
+    { name: '羅大佑', pinyin: ['ㄌ', 'ㄉ', 'ㄧ'] },
+    { name: '毛不易', pinyin: ['ㄇ', 'ㄅ', 'ㄧ'] },
+    { name: '洪榮宏', pinyin: ['ㄏ', 'ㄖ', 'ㄏ'] },
+    { name: '任賢齊', pinyin: ['ㄖ', 'ㄒ', 'ㄑ'] },
+    { name: '華晨宇', pinyin: ['ㄏ', 'ㄔ', 'ㄩ'] },
+    { name: '蕭敬騰', pinyin: ['ㄒ', 'ㄐ', 'ㄊ'] },
+    { name: '張雨生', pinyin: ['ㄓ', 'ㄩ', 'ㄕ'] },
+    { name: '庾澄慶', pinyin: ['ㄩ', 'ㄔ', 'ㄑ'] },
+    { name: '蘇永康', pinyin: ['ㄙ', 'ㄩ', 'ㄎ'] },
+    { name: '林宥嘉', pinyin: ['ㄌ', 'ㄧ', 'ㄐ'] },
+    { name: '謝霆鋒', pinyin: ['ㄒ', 'ㄊ', 'ㄈ'] },
+    { name: '葉啟田', pinyin: ['ㄧ', 'ㄑ', 'ㄊ'] },
+    { name: '蕭煌奇', pinyin: ['ㄒ', 'ㄏ', 'ㄑ'] },
+    { name: '李聖傑', pinyin: ['ㄌ', 'ㄕ', 'ㄐ'] },
+    { name: '羅志祥', pinyin: ['ㄌ', 'ㄓ', 'ㄒ'] },
+    { name: '杜德偉', pinyin: ['ㄉ', 'ㄉ', 'ㄨ'] },
+    { name: '陳小春', pinyin: ['ㄔ', 'ㄒ', 'ㄔ'] },
+    { name: '黃凱芹', pinyin: ['ㄏ', 'ㄎ', 'ㄑ'] },
+    { name: '羅時豐', pinyin: ['ㄌ', 'ㄕ', 'ㄈ'] },
+    { name: '李宗盛', pinyin: ['ㄌ', 'ㄗ', 'ㄕ'] },
+    { name: '鄭伊健', pinyin: ['ㄓ', 'ㄧ', 'ㄐ'] },
+    { name: '方大同', pinyin: ['ㄈ', 'ㄉ', 'ㄊ'] },
+    { name: '陳零九', pinyin: ['ㄔ', 'ㄌ', 'ㄐ'] },
+    { name: '翁立友', pinyin: ['ㄨ', 'ㄌ', 'ㄧ'] },
+    { name: '呂建中', pinyin: ['ㄌ', 'ㄐ', 'ㄓ'] },
+    { name: '謝和弦', pinyin: ['ㄒ', 'ㄏ', 'ㄒ'] },
+    { name: '陳曉東', pinyin: ['ㄔ', 'ㄒ', 'ㄉ'] },
+    { name: '黃義達', pinyin: ['ㄏ', 'ㄧ', 'ㄉ'] },
+    { name: '林志炫', pinyin: ['ㄌ', 'ㄓ', 'ㄒ'] },
+    { name: '劉文正', pinyin: ['ㄌ', 'ㄨ', 'ㄓ'] },
+    { name: '巫啟賢', pinyin: ['ㄨ', 'ㄑ', 'ㄒ'] },
+    { name: '吳克群', pinyin: ['ㄨ', 'ㄎ', 'ㄑ'] }
+        ];
+
+        function SingerGame() {
+            // 原有的狀態...
+            const [answer, setAnswer] = React.useState(null);
+            const [guesses, setGuesses] = React.useState([]);
+            const [currentGuess, setCurrentGuess] = React.useState(['','','']);
+            const [currentPosition, setCurrentPosition] = React.useState(0);
+            const [gameOver, setGameOver] = React.useState(false);
+            const [message, setMessage] = React.useState('');
+            const [showKeyboard, setShowKeyboard] = React.useState(true);
+            const [keyboardStatus, setKeyboardStatus] = React.useState({});
+            
+            // 新增提示相關的狀態
+            const [hintsUsed, setHintsUsed] = React.useState(0);
+            const [revealedPositions, setRevealedPositions] = React.useState(new Set());
+
+            const initializeGame = () => {
+                const randomSinger = SINGERS[Math.floor(Math.random() * SINGERS.length)];
+                setAnswer(randomSinger);
+                setGuesses([]);
+                setCurrentGuess(['','','']);
+                setCurrentPosition(0);
+                setGameOver(false);
+                setMessage('');
+                setKeyboardStatus({});
+                setHintsUsed(0);
+                setRevealedPositions(new Set());
+                console.log('答案:', randomSinger.name, randomSinger.pinyin);
+            };
+
+            React.useEffect(() => {
+                initializeGame();
+            }, []);
+
+            // 提示功能
+            const getHint = () => {
+                if (hintsUsed >= 2) {
+                    setMessage('提示次數已用完！');
+                    return;
+                }
+
+                // 找出還未揭示的位置
+                const unrevealed = [0, 1, 2].filter(i => !revealedPositions.has(i));
+                if (unrevealed.length === 0) {
+                    setMessage('已經沒有可以提示的字了！');
+                    return;
+                }
+
+                // 隨機選擇一個未揭示的位置
+                const randomPos = unrevealed[Math.floor(Math.random() * unrevealed.length)];
+                const newRevealedPositions = new Set(revealedPositions);
+                newRevealedPositions.add(randomPos);
+                setRevealedPositions(newRevealedPositions);
+                setHintsUsed(hintsUsed + 1);
+
+                // 更新提示訊息
+                setMessage(`提示：第 ${randomPos + 1} 個字是 "${answer.pinyin[randomPos]}"`);
+
+                // 更新鍵盤狀態，將提示的字標記為黃色
+                const newStatus = { ...keyboardStatus };
+                newStatus[answer.pinyin[randomPos]] = 'yellow';
+                setKeyboardStatus(newStatus);
+            };
+
+            // 原有的處理函數...
+            const handleKeyPress = (char) => {
+                if (currentPosition < 3 && !gameOver) {
+                    const newGuess = [...currentGuess];
+                    newGuess[currentPosition] = char;
+                    setCurrentGuess(newGuess);
+                    setCurrentPosition(currentPosition + 1);
+                }
+            };
+
+            const handleDelete = () => {
+                if (currentPosition > 0 && !gameOver) {
+                    const newGuess = [...currentGuess];
+                    newGuess[currentPosition - 1] = '';
+                    setCurrentGuess(newGuess);
+                    setCurrentPosition(currentPosition - 1);
+                }
+            };
+
+            const updateKeyboardStatus = (guess) => {
+                const newStatus = { ...keyboardStatus };
+                
+                // 檢查完全正確的字母（綠色）
+                guess.forEach((char, index) => {
+                    if (!char) return;
+                    if (char === answer.pinyin[index]) {
+                        newStatus[char] = 'green';
+                    }
+                });
+                
+                // 檢查存在但位置不對的字母（黃色）
+                guess.forEach((char, index) => {
+                    if (!char) return;
+                    if (newStatus[char] === 'green') return;
+                    
+                    if (answer.pinyin.includes(char)) {
+                        const charInAnswer = answer.pinyin.filter(c => c === char).length;
+                        const correctPositions = guess.filter((c, i) => c === char && answer.pinyin[i] === char).length;
+                        
+                        if (correctPositions < charInAnswer) {
+                            newStatus[char] = 'yellow';
+                        }
+                    } else {
+                        newStatus[char] = 'gray';
+                    }
+                });
+                
+                setKeyboardStatus(newStatus);
+            };
+
+            const handleGuess = () => {
+                if (currentPosition !== 3) {
+                    setMessage('請輸入完整的三個注音符號');
+                    return;
+                }
+
+                const newGuesses = [...guesses, [...currentGuess]];
+                setGuesses(newGuesses);
+                updateKeyboardStatus(currentGuess);
+
+                if (currentGuess.join('') === answer.pinyin.join('')) {
+                    setMessage(`恭喜猜對了！答案是 ${answer.name}`);
+                    setGameOver(true);
+                } else if (newGuesses.length >= 6) {
+                    setMessage(`遊戲結束！正確答案是 ${answer.name}`);
+                    setGameOver(true);
+                }
+
+                setCurrentGuess(['','','']);
+                setCurrentPosition(0);
+            };
+
+            // 其他原有的函數...
+            const getCharacterStyle = (char, index, guessIndex) => {
+                if (!answer || !char) return 'bg-gray-200';
+                if (guessIndex >= guesses.length) return 'bg-gray-200';
+                
+                const guess = guesses[guessIndex];
+                if (guess[index] === answer.pinyin[index]) {
+                    return 'bg-green-500 text-white';
+                } else if (answer.pinyin.includes(guess[index])) {
+                    const count = answer.pinyin.filter(c => c === guess[index]).length;
+                    const correctPositions = guess.filter((c, i) => c === guess[index] && answer.pinyin[i] === c).length;
+                    if (correctPositions < count) {
+                        return 'bg-yellow-500 text-white';
+                    }
+                }
+                return 'bg-gray-500 text-white';
+            };
+
+            const getKeyboardButtonStyle = (char) => {
+                switch (keyboardStatus[char]) {
+                    case 'green':
+                        return 'bg-green-500 text-white hover:bg-green-600';
+                    case 'yellow':
+                        return 'bg-yellow-500 text-white hover:bg-yellow-600';
+                    case 'gray':
+                        return 'bg-gray-500 text-white hover:bg-gray-600';
+                    default:
+                        return 'bg-white hover:bg-gray-100';
+                }
+            };
+
+            const renderBopomofoKeyboard = () => {
+                const rows = [
+                    ['ㄅ', 'ㄆ', 'ㄇ', 'ㄈ', 'ㄉ', 'ㄊ', 'ㄋ', 'ㄌ'],
+                    ['ㄍ', 'ㄎ', 'ㄏ', 'ㄐ', 'ㄑ', 'ㄒ'],
+                    ['ㄓ', 'ㄔ', 'ㄕ', 'ㄖ', 'ㄗ', 'ㄘ', 'ㄙ'],
+                    ['ㄧ', 'ㄨ', 'ㄩ', 'ㄚ', 'ㄛ', 'ㄜ', 'ㄝ'],
+                    ['ㄞ', 'ㄟ', 'ㄠ', 'ㄡ', 'ㄢ', 'ㄣ', 'ㄤ', 'ㄥ']
+                ];
+
+                return (
+                    <div className="mt-4">
+                        {rows.map((row, i) => (
+                            <div key={i} className="flex justify-center gap-1 my-1">
+                                {row.map((char) => (
+                                    <button
+                                        key={char}
+                                        onClick={() => handleKeyPress(char)}
+                                        className={`w-8 h-8 text-sm border rounded ${getKeyboardButtonStyle(char)}`}
+                                        disabled={gameOver}
+                                    >
+                                        {char}
+                                    </button>
+                                ))}
+                            </div>
+                        ))}
+                    </div>
+                );
+            };
+
+            return (
+                <div className="flex flex-col items-center gap-4 p-4 max-w-lg mx-auto">
+                    <h1 className="text-2xl font-bold mb-4">猜歌手遊戲</h1>
+                    
+                    {/* 功能按鈕區 */}
+                    <div className="flex gap-2 mb-4">
+                        <button
+                            onClick={initializeGame}
+                            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                        >
+                            重新開始
+                        </button>
+                        <button
+                            onClick={getHint}
+                            className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
+                            disabled={gameOver || hintsUsed >= 2}
+                        >
+                            提示 ({2 - hintsUsed}/2)
+                        </button>
+                    </div>
+
+                    {/* 遊戲區域 */}
+                    <div className="grid gap-2">
+                        {[...Array(6)].map((_, rowIndex) => (
+                            <div key={rowIndex} className="flex gap-2">
+                                {[0,1,2].map((colIndex) => {
+                                    const char = rowIndex === guesses.length 
+                                        ? currentGuess[colIndex] 
+                                        : guesses[rowIndex]?.[colIndex];
+                                    
+                                    return (
+                                        <div 
+                                            key={colIndex}
+                                            className={`w-12 h-12 border-2 flex items-center justify-center text-xl font-bold ${
+                                                getCharacterStyle(char, colIndex, rowIndex)
+                                            }`}
+                                        >
+                                            {char || ''}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* 控制按鈕 */}
+                    <div className="flex gap-2">
+                        <button
+                            onClick={handleGuess}
+                            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                            disabled={gameOver}
+                        >
+                            確認
+                        </button>
+                        <button
+                            onClick={handleDelete}
+                            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                            disabled={gameOver}
+                        >
+                            刪除
+                        </button>
+                    </div>
+
+                    {/* 注音鍵盤 */}
+                    {showKeyboard && renderBopomofoKeyboard()}
+
+                    {/* 訊息顯示 */}
+                    {message && (
+                        <div className="mt-4 p-4 bg-blue-100 text-blue-700 rounded">
+                            {message}
+                        </div>
+                    )}
+                    
+                    {/* 遊戲說明 */}
+                    <div className="mt-4 text-sm text-gray-600">
+                        <p>遊戲規則：</p>
+                        <ul className="list-disc pl-5">
+                            <li>猜測華語歌手或樂團名字的注音首字母</li>
+                            <li>每次猜測需輸入三個注音符號</li>
+                            <li>綠色表示位置正確</li>
+                            <li>黃色表示字存在但位置不對</li>
+                            <li>灰色表示字不存在</li>
+                            <li>總共有6次猜測機會</li>
+                        </ul>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<SingerGame />, document.getElementById('root'));
+    </script>
+</body>
+</html>
