@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>財務規劃計算器</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    input {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+
+    #result {
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
+    #pieChartContainer {
+      width: 40%;
+      /* 設置圓餅圖容器寬度 */
+      margin: auto;
+      /* 讓容器水平置中 */
+    }
+
+    canvas {
+      margin-top: 20px;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+
+    table,
+    th,
+    td {
+      border: 1px solid #ddd;
+    }
+
+    th,
+    td {
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>財務規劃計算器</h1>
+
+  <label for="monthlyIncome">月薪：</label>
+  <input type="number" id="monthlyIncome" placeholder="輸入月薪">
+
+  <label for="livingExpense">生活開銷比例：<span id="livingExpenseValue">30%</span></label>
+  <input type="range" id="livingExpense" min="0" max="100" step="1" value="30">
+
+
+  <label for="stockInvestment">投資股票比例： <span id="stockInvestmentValue">20%</span></label>
+  <input type="range" id="stockInvestment" min="0" max="100" step="1" value="20">
+
+
+  <label for="cryptoInvestment">投資幣圈比例： <span id="cryptoInvestmentValue">10%</span></label>
+  <input type="range" id="cryptoInvestment" min="0" max="100" step="1" value="10">
+
+
+  <label for="loan">放貸比例： <span id="loanValue">10%</span></label>
+  <input type="range" id="loan" min="0" max="100" step="1" value="10">
+
+
+  <label for="savings">儲蓄比例： <span id="savingsValue">30%</span></label>
+  <input type="range" id="savings" min="0" max="100" step="1" value="30">
+
+
+  <button onclick="calculate()">計算</button>
+
+  <div id="result"></div>
+  <div id="pieChartContainer">
+    <canvas id="pieChart" width="60%" height="60%"></canvas>
+  </div>
+
+  <table id="allocationTable">
+    <thead>
+      <tr>
+        <th>項目</th>
+        <th>每月金額</th>
+        <th>每年金額</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr id="livingExpenseRow">
+        <td>生活開銷</td>
+        <td id="livingExpenseMonthly"></td>
+        <td id="livingExpenseYearly"></td>
+      </tr>
+      <tr id="stockInvestmentRow">
+        <td>投資股票</td>
+        <td id="stockInvestmentMonthly"></td>
+        <td id="stockInvestmentYearly"></td>
+      </tr>
+      <tr id="cryptoInvestmentRow">
+        <td>投資幣圈</td>
+        <td id="cryptoInvestmentMonthly"></td>
+        <td id="cryptoInvestmentYearly"></td>
+      </tr>
+      <tr id="loanRow">
+        <td>放貸</td>
+        <td id="loanMonthly"></td>
+        <td id="loanYearly"></td>
+      </tr>
+      <tr id="savingsRow">
+        <td>儲蓄</td>
+        <td id="savingsMonthly"></td>
+        <td id="savingsYearly"></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    function calculate() {
+      const monthlyIncome = parseFloat(document.getElementById('monthlyIncome').value);
+      const livingExpensePercentage = parseInt(document.getElementById('livingExpense').value);
+      const stockInvestmentPercentage = parseInt(document.getElementById('stockInvestment').value);
+      const cryptoInvestmentPercentage = parseInt(document.getElementById('cryptoInvestment').value);
+      const loanPercentage = parseInt(document.getElementById('loan').value);
+      const savingsPercentage = parseInt(document.getElementById('savings').value);
+
+      // 檢查總比例是否為100%
+      const totalPercentage = livingExpensePercentage + stockInvestmentPercentage + cryptoInvestmentPercentage + loanPercentage + savingsPercentage;
+
+      if (totalPercentage !== 100) {
+        alert("總比例必須為100%，請重新調整比例。");
+        return;
+      }
+
+      const livingExpense = (monthlyIncome * livingExpensePercentage) / 100;
+      const stockInvestment = (monthlyIncome * stockInvestmentPercentage) / 100;
+      const cryptoInvestment = (monthlyIncome * cryptoInvestmentPercentage) / 100;
+      const loan = (monthlyIncome * loanPercentage) / 100;
+      const savings = (monthlyIncome * savingsPercentage) / 100;
+
+      const result = `
+        <p>生活開銷: $${livingExpense.toFixed(2)}</p>
+        <p>投資股票: $${stockInvestment.toFixed(2)}</p>
+        <p>投資幣圈: $${cryptoInvestment.toFixed(2)}</p>
+        <p>放貸: $${loan.toFixed(2)}</p>
+        <p>儲蓄: $${savings.toFixed(2)}</p>
+      `;
+
+      document.getElementById('result').innerHTML = result;
+
+      // 計算年總計
+      const yearlyTotal = (livingExpense + stockInvestment + cryptoInvestment + loan + savings) * 12;
+
+      // 更新圓餅圖
+      updatePieChart([livingExpense, stockInvestment, cryptoInvestment, loan, savings], yearlyTotal);
+
+      // 更新表格
+      updateTable([livingExpense, stockInvestment, cryptoInvestment, loan, savings]);
+    }
+
+    // 更新比例條的值
+    document.getElementById('livingExpense').addEventListener('input', function () {
+      document.getElementById('livingExpenseValue').textContent = this.value + '%';
+    });
+
+    document.getElementById('stockInvestment').addEventListener('input', function () {
+      document.getElementById('stockInvestmentValue').textContent = this.value + '%';
+    });
+
+    document.getElementById('cryptoInvestment').addEventListener('input', function () {
+      document.getElementById('cryptoInvestmentValue').textContent = this.value + '%';
+    });
+
+    document.getElementById('loan').addEventListener('input', function () {
+      document.getElementById('loanValue').textContent = this.value + '%';
+    });
+
+    document.getElementById('savings').addEventListener('input', function () {
+      document.getElementById('savingsValue').textContent = this.value + '%';
+    });
+
+    // 更新表格的函數
+    function updateTable(data) {
+      const monthlyTable = document.getElementById('allocationTable');
+      const monthlyRows = monthlyTable.getElementsByTagName('tr');
+
+      const labels = ['livingExpense', 'stockInvestment', 'cryptoInvestment', 'loan', 'savings'];
+      const monthlyValues = data;
+
+      for (let i = 0; i < monthlyRows.length; i++) {
+        const cells = monthlyRows[i].getElementsByTagName('td');
+
+        // 更新每月金額
+        cells[1].textContent = '$' + monthlyValues[i].toFixed(2);
+
+        // 更新每年金額
+        cells[2].textContent = '$' + (monthlyValues[i] * 12).toFixed(2);
+      }
+      document.getElementById('livingExpenseMonthly').textContent = '$' + data[0].toFixed(2);
+      document.getElementById('livingExpenseYearly').textContent = '$' + (data[0] * 12).toFixed(2);
+
+      document.getElementById('stockInvestmentMonthly').textContent = '$' + data[1].toFixed(2);
+      document.getElementById('stockInvestmentYearly').textContent = '$' + (data[1] * 12).toFixed(2);
+
+      document.getElementById('cryptoInvestmentMonthly').textContent = '$' + data[2].toFixed(2);
+      document.getElementById('cryptoInvestmentYearly').textContent = '$' + (data[2] * 12).toFixed(2);
+
+      document.getElementById('loanMonthly').textContent = '$' + data[3].toFixed(2);
+      document.getElementById('loanYearly').textContent = '$' + (data[3] * 12).toFixed(2);
+
+      document.getElementById('savingsMonthly').textContent = '$' + data[4].toFixed(2);
+      document.getElementById('savingsYearly').textContent = '$' + (data[4] * 12).toFixed(2);
+    }
+
+    // 更新圓餅圖的函數
+    function updatePieChart(data, total) {
+      const ctx = document.getElementById('pieChart').getContext('2d');
+      const labels = ['生活開銷', '投資股票', '投資幣圈', '放貸', '儲蓄'];
+      const colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4CAF50', '#9C27B0'];
+
+      // 檢查是否已經有圓餅圖實例
+      if (window.myPieChart) {
+        window.myPieChart.data.labels = labels;
+        window.myPieChart.data.datasets[0].data = data;
+        window.myPieChart.update();
+      } else {
+        window.myPieChart = new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: labels,
+            datasets: [{
+              data: data,
+              backgroundColor: colors,
+            }],
+          },
+          options: {
+            title: {
+              display: true,
+              text: '年度支出分布',
+            },
+            tooltips: {
+              callbacks: {
+                label: function (tooltipItem, data) {
+                  const label = data.labels[tooltipItem.index];
+                  const value = data.datasets[0].data[tooltipItem.index];
+                  const percentage = ((value / total) * 100).toFixed(2) + '%';
+                  return label + ': $' + value.toFixed(2) + ' (' + percentage + ')';
+                },
+              },
+            },
+          },
+        });
+      }
+    }
+  </script>
+
+</body>
+
+</html>
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>財務規劃計算器</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    input {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+
+    #result {
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
+    #pieChartContainer {
+      width: 40%;
+      /* 設置圓餅圖容器寬度 */
+      margin: auto;
+      /* 讓容器水平置中 */
+    }
+
+    canvas {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>財務規劃計算器</h1>
+
+  <label for="monthlyIncome">月薪：</label>
+  <input type="number" id="monthlyIncome" placeholder="輸入月薪">
+
+  <label for="livingExpense">生活開銷比例：<span id="livingExpenseValue">30%</span></label>
+  <input type="range" id="livingExpense" min="0" max="100" step="1" value="30">
+
+
+  <label for="stockInvestment">投資股票比例： <span id="stockInvestmentValue">20%</span></label>
+  <input type="range" id="stockInvestment" min="0" max="100" step="1" value="20">
+
+
+  <label for="cryptoInvestment">投資幣圈比例： <span id="cryptoInvestmentValue">10%</span></label>
+  <input type="range" id="cryptoInvestment" min="0" max="100" step="1" value="10">
+
+
+  <label for="loan">放貸比例： <span id="loanValue">10%</span></label>
+  <input type="range" id="loan" min="0" max="100" step="1" value="10">
+
+
+  <label for="savings">儲蓄比例： <span id="savingsValue">30%</span></label>
+  <input type="range" id="savings" min="0" max="100" step="1" value="30">
+
+
+  <button onclick="calculate()">計算</button>
+
+  <div id="result"></div>
+  <div id="pieChartContainer">
+    <canvas id="pieChart" width="60%" height="60%"></canvas>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    function calculate() {
+      const monthlyIncome = parseFloat(document.getElementById('monthlyIncome').value);
+      const livingExpensePercentage = parseInt(document.getElementById('livingExpense').value);
+      const stockInvestmentPercentage = parseInt(document.getElementById('stockInvestment').value);
+      const cryptoInvestmentPercentage = parseInt(document.getElementById('cryptoInvestment').value);
+      const loanPercentage = parseInt(document.getElementById('loan').value);
+      const savingsPercentage = parseInt(document.getElementById('savings').value);
+
+      // 檢查總比例是否為100%
+      const totalPercentage = livingExpensePercentage + stockInvestmentPercentage + cryptoInvestmentPercentage + loanPercentage + savingsPercentage;
+
+      if (totalPercentage !== 100) {
+        alert("總比例必須為100%，請重新調整比例。");
+        return;
+      }
+
+      const livingExpense = (monthlyIncome * livingExpensePercentage) / 100;
+      const stockInvestment = (monthlyIncome * stockInvestmentPercentage) / 100;
+      const cryptoInvestment = (monthlyIncome * cryptoInvestmentPercentage) / 100;
+      const loan = (monthlyIncome * loanPercentage) / 100;
+      const savings = (monthlyIncome * savingsPercentage) / 100;
+
+      const result = `
+        <p>生活開銷: $${livingExpense.toFixed(2)}</p>
+        <p>投資股票: $${stockInvestment.toFixed(2)}</p>
+        <p>投資幣圈: $${cryptoInvestment.toFixed(2)}</p>
+        <p>放貸: $${loan.toFixed(2)}</p>
+        <p>儲蓄: $${savings.toFixed(2)}</p>
+      `;
+
+      document.getElementById('result').innerHTML = result;
+
+      // 計算年總計
+      const yearlyTotal = (livingExpense + stockInvestment + cryptoInvestment + loan + savings) * 12;
+
+      // 更新圓餅圖
+      updatePieChart([livingExpense, stockInvestment, cryptoInvestment, loan, savings], yearlyTotal);
+    }
+
+    // 更新比例條的值
+    document.getElementById('livingExpense').addEventListener('input', function () {
+      document.getElementById('livingExpenseValue').textContent = this.value + '%';
+    });
+
+    document.getElementById('stockInvestment').addEventListener('input', function () {
+      document.getElementById('stockInvestmentValue').textContent = this.value + '%';
+    });
+
+    document.getElementById('cryptoInvestment').addEventListener('input', function () {
+      document.getElementById('cryptoInvestmentValue').textContent = this.value + '%';
+    });
+
+    document.getElementById('loan').addEventListener('input', function () {
+      document.getElementById('loanValue').textContent = this.value + '%';
+    });
+
+    document.getElementById('savings').addEventListener('input', function () {
+      document.getElementById('savingsValue').textContent = this.value + '%';
+    });
+
+    // 更新圓餅圖的函數
+    function updatePieChart(data, total) {
+      const ctx = document.getElementById('pieChart').getContext('2d');
+      const labels = ['生活開銷', '投資股票', '投資幣圈', '放貸', '儲蓄'];
+      const colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4CAF50', '#9C27B0'];
+
+      // 檢查是否已經有圓餅圖實例
+      if (window.myPieChart) {
+        window.myPieChart.data.labels = labels;
+        window.myPieChart.data.datasets[0].data = data;
+        window.myPieChart.update();
+      } else {
+        window.myPieChart = new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: labels,
+            datasets: [{
+              data: data,
+              backgroundColor: colors,
+            }],
+          },
+          options: {
+            title: {
+              display: true,
+              text: '年度支出分布',
+            },
+            tooltips: {
+              callbacks: {
+                label: function (tooltipItem, data) {
+                  const label = data.labels[tooltipItem.index];
+                  const value = data.datasets[0].data[tooltipItem.index];
+                  const percentage = ((value / total) * 100).toFixed(2) + '%';
+                  return label + ': $' + value.toFixed(2) + ' (' + percentage + ')';
+                },
+              },
+            },
+          },
+        });
+      }
+    }
+  </script>
+
+</body>
+
+</html>
+ -->
